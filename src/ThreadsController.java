@@ -1,4 +1,6 @@
 import java.util.ArrayList;
+import java.awt.BorderLayout;
+import javax.swing.*;
 
 
 //Controls all the game logic .. most important class in this project.
@@ -6,11 +8,13 @@ public class ThreadsController extends Thread {
 	 ArrayList<ArrayList<DataOfSquare>> Squares= new ArrayList<ArrayList<DataOfSquare>>();
 	 Tuple headSnakePos;
 	 int sizeSnake=3;
-	 long speed = 50;
+	 public static long speed = 70;
 	 public static int directionSnake ;
+	 public static int level;
 
 	 ArrayList<Tuple> positions = new ArrayList<Tuple>();
 	 Tuple foodPosition;
+	 Tuple shitPosition;
 	 
 	 //Constructor of ControlleurThread 
 	 ThreadsController(Tuple positionDepart){
@@ -26,6 +30,9 @@ public class ThreadsController extends Thread {
 		
 		foodPosition= new Tuple(Window.height-1,Window.width-1);
 		spawnFood(foodPosition);
+		
+		shitPosition= new Tuple(Window.height-6,Window.width-6);
+		spawnShit(shitPosition);
 
 	 }
 	 
@@ -55,6 +62,15 @@ public class ThreadsController extends Thread {
 		 for(int i = 0;i<=positions.size()-2;i++){
 			 boolean biteItself = posCritique.getX()==positions.get(i).getX() && posCritique.getY()==positions.get(i).getY();
 			 if(biteItself){
+				 Message biteTail = new Message();
+				 JPanel midPanel = new JPanel();
+				 biteTail.setVisible(true);
+				 biteTail.setTitle("Game Over!");
+				 biteTail.setSize(300,100);
+				 biteTail.setLocationRelativeTo(null);
+				 midPanel.add(new JLabel("Hahaha, UCCU~~"));
+				 biteTail.add(midPanel, BorderLayout.CENTER);
+				 biteTail.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				stopTheGame();
 			 }
 		 }
@@ -67,7 +83,49 @@ public class ThreadsController extends Thread {
 
 			 spawnFood(foodPosition);	
 		 }
+		 
+		 boolean eatingShit = posCritique.getX()==shitPosition.y && posCritique.getY()==shitPosition.x;
+		 if(eatingShit) {
+			 if(level==1) {
+				 System.out.println("Oh no! It eats like shit!");
+				 sizeSnake=sizeSnake-1;
+				 shitPosition = getValAleaNotInSnake();  
+				 	spawnShit(shitPosition);
+				 	if(sizeSnake==0) {
+						 Message manyShits = new Message();
+						 JPanel midPanel = new JPanel();
+						 manyShits.setVisible(true);
+						 manyShits.setTitle("Game Over!");
+						 manyShits.setSize(300,100);
+						 manyShits.setLocationRelativeTo(null);
+						 midPanel.add(new JLabel("Dies in eating too many shits~"));
+						 manyShits.add(midPanel, BorderLayout.CENTER);
+						 manyShits.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+						 DieInShit();
+					 }
+			 }
+			 if(level==2) {
+				 Message manyShits = new Message();
+				 JPanel midPanel = new JPanel();
+				 manyShits.setVisible(true);
+				 manyShits.setTitle("Game Over!");
+				 manyShits.setSize(300,100);
+				 manyShits.setLocationRelativeTo(null);
+				 midPanel.add(new JLabel("Dies in eating shit!"));
+				 manyShits.add(midPanel, BorderLayout.CENTER);
+				 manyShits.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				 DieInShit();
+			 }
+		 }
 	 }
+	 
+	//Dies cuz ate shit
+		 private void DieInShit() {
+			 System.out.println("Die in eating too many shits");
+			 while(true) {
+				 pauser();
+			 }
+		 }
 	 
 	 //Stops The Game
 	 private void stopTheGame(){
@@ -80,6 +138,11 @@ public class ThreadsController extends Thread {
 	 //Put food in a position and displays it
 	 private void spawnFood(Tuple foodPositionIn){
 		 	Squares.get(foodPositionIn.x).get(foodPositionIn.y).lightMeUp(1);
+	 }
+	 
+	//Put shit in a position and displays it
+	 private void spawnShit(Tuple shitPositionIn){
+		 Squares.get(shitPositionIn.x).get(shitPositionIn.y).lightMeUp(3);
 	 }
 	 
 	 //return a position not occupied by the snake
